@@ -1,69 +1,57 @@
 import React, { useEffect, useState } from 'react';
 import { nanoid } from 'nanoid';
-import ContactForm from './сontactForm/ContactForm';
-import ContactList from './contactList/ContactList';
-import Filter from './filter/Filter';
-import styles from './contactList/ContactList.module.css';
+import ContactForm from '../components/сontactForm/ContactForm.js';
+import ContactList from '../components/contactList/ContactList.js';
+import Filter from '../components/filter/Filter.js';
+import styles from '../components/contactList/ContactList.module.css';
 
 const App = () => {
-  const [phonebook, setPhoneBook] = useState({
-    contacts: [],
-    filter: '',
-  });
+  const [contacts, setContacts] = useState([]);
+  const [filter, setFilter] = useState('');
 
-  useEffect(() => {
-    const savedContacts = localStorage.getItem('contacts');
-    if (savedContacts) {
-      setPhoneBook(prevState => ({
-        ...prevState,
-        contacts: JSON.parse(savedContacts),
-      }));
-    }
-  }, []);
-
-  useEffect(() => {
-    localStorage.setItem('contacts', JSON.stringify(phonebook.contacts));
-  }, [phonebook.contacts]);
-
-  const addContact = contact => {
+  function addContact(contact) {
+    console.log('Updated contacts:', contacts);
     const newContact = {
       id: nanoid(),
       ...contact,
     };
-    setPhoneBook(prevState => ({
-      ...prevState,
-      contacts: [...prevState.contacts, newContact],
-    }));
-  };
+    setContacts(prevContacts => [...prevContacts, newContact]);
+  }
 
   const handleFilterChange = event => {
-    const { value } = event.target;
-    setPhoneBook(prevState => ({
-      ...prevState,
-      filter: value,
-    }));
+    setFilter(event.target.value);
+    console.log('Updated filter:', filter);
   };
+  useEffect(() => {
+    const savedContacts = localStorage.getItem(contacts);
+    console.log('Saved contacts:', savedContacts);
 
+    if (savedContacts) {
+      setContacts(JSON.parse(savedContacts));
+    }
+  }, [contacts]);
+
+  useEffect(() => {
+    localStorage.setItem('contacts', JSON.stringify(contacts));
+  }, []);
   const handleDelete = id => {
-    setPhoneBook(prevState => ({
-      ...prevState,
-      contacts: prevState.contacts.filter(contact => contact.id !== id),
-    }));
+    console.log('Updated contacts:', contacts);
+
+    setContacts(prevContacts =>
+      prevContacts.filter(contact => contact.id !== id)
+    );
   };
 
   const getVisibleContacts = () => {
-    const { contacts, filter } = phonebook;
     return contacts.filter(contact =>
       contact.name.toLowerCase().includes(filter.toLowerCase())
     );
   };
 
-  const { contacts, filter } = phonebook;
-
   return (
     <div className={styles.app}>
       <h1>Phonebook</h1>
-      <ContactForm addContact={addContact} />
+      <ContactForm addContact={addContact} contacts={contacts} />
       <h2>Contacts</h2>
       <Filter filter={filter} handleFilterChange={handleFilterChange} />
       <ContactList

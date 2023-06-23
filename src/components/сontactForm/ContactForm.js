@@ -1,92 +1,39 @@
-// import React, { useState } from 'react';
-// import styles from '../contactList/ContactList.module.css';
-// // import ContactList from 'components/contactList/ContactList';
-// const ContactForm=()=>{
-//   const[name,setName]=useState,
-//  const[number,setNumber]=useState,
-//    const[contacts,setContacts]=useState ,
-//   };
-
-//   const handleNameChange = event => {
-//   setName (event.target.value );
-//   };
-
-//   const handleNumberChange = event => {
-//    setNumber(event.target.value);
-//   };
-
-//  const handleSubmit = event => {
-//     event.preventDefault();
-//     const { name, number } = contacts;
-//     const { addContact, contacts } = this.props;
-//     const newContact = { id: contacts.length + 1, name, number };
-
-//    setContacts({
-//       contacts: [...contacts, newContact],
-//       name: '',
-//       number: '',
-//     });
-
-//     const isDuplicateName = contacts.some(
-//       contact => contact.name.toLowerCase() === name.toLowerCase()
-//     );
-
-//     if (isDuplicateName) {
-//       alert(`Контакт з ім'ям ${name} вже існує!`);
-//     } else {
-//       addContact({ name, number });
-//      setContacts({ name: '', number: '' });
-//     }
-//   };
-
-//     const { name, number } = contacts
-
-//     return (
-//       <form className={styles.form} onSubmit={handleSubmit}>
-//         <input
-//           className={styles.input}
-//           type="text"
-//           name="name"
-//           value={name}
-//           onChange={handleNameChange}
-//           placeholder="Name"
-//           required
-//         />
-//         <input
-//           className={styles.input}
-//           type="tel"
-//           name="number"
-//           value={number}
-//           onChange={handleNumberChange}
-//           placeholder="Phone Number"
-//           required
-//         />
-//         <button className={styles.buttonForm} type="submit">
-//           Add Contact
-//         </button>
-//       </form>
-// );
-
-// export default ContactForm;
 import React, { useState } from 'react';
+import { nanoid } from 'nanoid';
 import styles from '../contactList/ContactList.module.css';
 
-const ContactForm = ({ addContact }) => {
+const ContactForm = ({ addContact, contacts }) => {
   const [name, setName] = useState('');
   const [number, setNumber] = useState('');
 
+  const handleNameChange = event => {
+    setName(event.target.value);
+  };
+
+  const handleNumberChange = event => {
+    setNumber(event.target.value);
+  };
+
   const handleSubmit = event => {
     event.preventDefault();
-    const newContact = { name, number };
 
-    if (name.trim() === '' || number.trim() === '') {
-      alert('Please enter a name and phone number.');
-      return;
+    const newContact = {
+      id: nanoid(),
+      name,
+      number,
+    };
+
+    const isDuplicateName = contacts.some(
+      contact => contact.name.toLowerCase() === name.toLowerCase()
+    );
+
+    if (isDuplicateName) {
+      alert(`Контакт з ім'ям ${name} вже існує!`);
+    } else {
+      addContact(newContact);
+      setName('');
+      setNumber('');
     }
-
-    addContact(newContact);
-    setName('');
-    setNumber('');
   };
 
   return (
@@ -96,7 +43,7 @@ const ContactForm = ({ addContact }) => {
         type="text"
         name="name"
         value={name}
-        onChange={event => setName(event.target.value)}
+        onChange={handleNameChange}
         placeholder="Name"
         required
       />
@@ -105,7 +52,7 @@ const ContactForm = ({ addContact }) => {
         type="tel"
         name="number"
         value={number}
-        onChange={event => setNumber(event.target.value)}
+        onChange={handleNumberChange}
         placeholder="Phone Number"
         required
       />

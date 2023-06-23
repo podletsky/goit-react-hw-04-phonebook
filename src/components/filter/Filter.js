@@ -1,5 +1,6 @@
 import React from 'react';
 import styles from '../contactList/ContactList.module.css';
+
 const Filter = ({ filter, handleFilterChange }) => {
   return (
     <input
