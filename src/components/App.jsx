@@ -1,74 +1,77 @@
-import React, { Component } from 'react';
+import React, { useEffect, useState } from 'react';
 import { nanoid } from 'nanoid';
 import ContactForm from './сontactForm/ContactForm';
 import ContactList from './contactList/ContactList';
 import Filter from './filter/Filter';
 import styles from './contactList/ContactList.module.css';
 
-class App extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      contacts: [],
-      filter: '',
-    };
-  }
-  componentDidMount() {
+const App = () => {
+  const [phonebook, setPhoneBook] = useState({
+    contacts: [],
+    filter: '',
+  });
+
+  useEffect(() => {
     const savedContacts = localStorage.getItem('contacts');
     if (savedContacts) {
-      this.setState({ contacts: JSON.parse(savedContacts) });
+      setPhoneBook(prevState => ({
+        ...prevState,
+        contacts: JSON.parse(savedContacts),
+      }));
     }
-  }
+  }, []);
 
-  componentDidUpdate() {
-    localStorage.setItem('contacts', JSON.stringify(this.state.contacts));
-  }
+  useEffect(() => {
+    localStorage.setItem('contacts', JSON.stringify(phonebook.contacts));
+  }, [phonebook.contacts]);
 
-  addContact = contact => {
+  const addContact = contact => {
     const newContact = {
       id: nanoid(),
       ...contact,
     };
-    this.setState(prevState => ({
+    setPhoneBook(prevState => ({
+      ...prevState,
       contacts: [...prevState.contacts, newContact],
     }));
   };
 
-  handleFilterChange = event => {
-    this.setState({ filter: event.target.value });
+  const handleFilterChange = event => {
+    const { value } = event.target;
+    setPhoneBook(prevState => ({
+      ...prevState,
+      filter: value,
+    }));
   };
 
-  handleDelete = id => {
-    this.setState(prevState => ({
+  const handleDelete = id => {
+    setPhoneBook(prevState => ({
+      ...prevState,
       contacts: prevState.contacts.filter(contact => contact.id !== id),
     }));
   };
-  getVisibleContacts = () => {
-    const { contacts, filter } = this.state;
+
+  const getVisibleContacts = () => {
+    const { contacts, filter } = phonebook;
     return contacts.filter(contact =>
       contact.name.toLowerCase().includes(filter.toLowerCase())
     );
   };
 
-  render() {
-    const { contacts, filter } = this.state;
+  const { contacts, filter } = phonebook;
 
-    return (
-      <div className={styles.app}>
-        <h1>Phonebook</h1>
-        <ContactForm addContact={this.addContact} contacts={contacts} />
-        <h2>Contacts</h2>
-        <Filter filter={filter} handleFilterChange={this.handleFilterChange} />
-        <ContactList
-          contacts={this.getVisibleContacts()}
-          // contacts={contacts}
-
-          handleInputChange={this.handleInputChange}
-          deleteContact={this.handleDelete}
-        />
-      </div>
-    );
-  }
-}
+  return (
+    <div className={styles.app}>
+      <h1>Phonebook</h1>
+      <ContactForm addContact={addContact} />
+      <h2>Contacts</h2>
+      <Filter filter={filter} handleFilterChange={handleFilterChange} />
+      <ContactList
+        contacts={getVisibleContacts()}
+        deleteContact={handleDelete}
+      />
+    </div>
+  );
+};
 
 export { App };
