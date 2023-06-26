@@ -6,11 +6,20 @@ import Filter from '../components/filter/Filter.js';
 import styles from '../components/contactList/ContactList.module.css';
 
 const App = () => {
-  const [contacts, setContacts] = useState([]);
+  const [contacts, setContacts] = useState(() =>
+    JSON.parse(localStorage.getItem('contacts') ?? [])
+  );
   const [filter, setFilter] = useState('');
 
+  useEffect(() => {
+    localStorage.setItem('contacts', JSON.stringify(contacts));
+  }, [contacts]);
+  const handleDelete = id => {
+    setContacts(prevContacts =>
+      prevContacts.filter(contact => contact.id !== id)
+    );
+  };
   function addContact(contact) {
-    console.log('Updated contacts:', contacts);
     const newContact = {
       id: nanoid(),
       ...contact,
@@ -20,26 +29,6 @@ const App = () => {
 
   const handleFilterChange = event => {
     setFilter(event.target.value);
-    console.log('Updated filter:', filter);
-  };
-  useEffect(() => {
-    const savedContacts = localStorage.getItem(contacts);
-    console.log('Saved contacts:', savedContacts);
-
-    if (savedContacts) {
-      setContacts(JSON.parse(savedContacts));
-    }
-  }, [contacts]);
-
-  useEffect(() => {
-    localStorage.setItem('contacts', JSON.stringify(contacts));
-  }, []);
-  const handleDelete = id => {
-    console.log('Updated contacts:', contacts);
-
-    setContacts(prevContacts =>
-      prevContacts.filter(contact => contact.id !== id)
-    );
   };
 
   const getVisibleContacts = () => {
